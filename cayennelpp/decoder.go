@@ -5,8 +5,11 @@ package cayennelpp
 
 import (
 	"encoding/binary"
+	"errors"
 	"io"
 )
+
+var ErrInvalidChannel = errors.New("cayennelpp: unknown type")
 
 type Target interface {
 	DigitalInput(channel, value uint8)
@@ -70,6 +73,8 @@ func (d *decoder) Decode(target Target) error {
 			err = d.decodeGyrometer(buf[0], target)
 		case GPS:
 			err = d.decodeGPS(buf[0], target)
+		default:
+			err = ErrInvalidChannel
 		}
 		if err != nil {
 			return err
