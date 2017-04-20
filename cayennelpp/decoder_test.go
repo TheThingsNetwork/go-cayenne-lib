@@ -16,6 +16,10 @@ type target struct {
 	values map[uint8]interface{}
 }
 
+func (t *target) Port(channel uint8, value float32) {
+	t.values[channel] = value
+}
+
 func (t *target) DigitalInput(channel, value uint8) {
 	t.values[channel] = value
 }
@@ -67,7 +71,7 @@ func (t *target) GPS(channel uint8, latitude, longitude, altitude float32) {
 func TestDecode(t *testing.T) {
 	a := New(t)
 
-	// Happy flow
+	// Happy flow: uplink
 	{
 		buf := []byte{
 			1, DigitalInput, 255,
@@ -86,7 +90,7 @@ func TestDecode(t *testing.T) {
 		decoder := NewDecoder(bytes.NewBuffer(buf))
 		target := &target{make(map[uint8]interface{})}
 
-		err := decoder.Decode(target)
+		err := decoder.DecodeUplink(target)
 		a.So(err, ShouldBeNil)
 		a.So(target.values[1], ShouldEqual, 255)
 		a.So(target.values[2], ShouldEqual, 100)
@@ -102,6 +106,21 @@ func TestDecode(t *testing.T) {
 		a.So(target.values[12], ShouldResemble, []float32{52.3655, 4.8885, 21.54})
 	}
 
+	// Happy flow: downlink
+	{
+		buf := []byte{
+			1, 0, 100,
+			2, 234, 182,
+		}
+		decoder := NewDecoder(bytes.NewBuffer(buf))
+		target := &target{make(map[uint8]interface{})}
+
+		err := decoder.DecodeDownlink(target)
+		a.So(err, ShouldBeNil)
+		a.So(target.values[1], ShouldEqual, 1)
+		a.So(target.values[2], ShouldEqual, -54.5)
+	}
+
 	// Invalid data type
 	{
 		buf := []byte{
@@ -110,11 +129,11 @@ func TestDecode(t *testing.T) {
 		decoder := NewDecoder(bytes.NewBuffer(buf))
 		target := &target{make(map[uint8]interface{})}
 
-		err := decoder.Decode(target)
+		err := decoder.DecodeUplink(target)
 		a.So(err, ShouldEqual, ErrInvalidChannel)
 	}
 
-	// Not enough data
+	// Not enough data: uplink
 	{
 		buf := []byte{
 			12, GPS, 7, 253, 135, 0, 190,
@@ -122,7 +141,19 @@ func TestDecode(t *testing.T) {
 		decoder := NewDecoder(bytes.NewBuffer(buf))
 		target := &target{make(map[uint8]interface{})}
 
-		err := decoder.Decode(target)
+		err := decoder.DecodeUplink(target)
+		a.So(err, ShouldEqual, io.ErrUnexpectedEOF)
+	}
+
+	// Not enough data: downlink
+	{
+		buf := []byte{
+			12, 1,
+		}
+		decoder := NewDecoder(bytes.NewBuffer(buf))
+		target := &target{make(map[uint8]interface{})}
+
+		err := decoder.DecodeDownlink(target)
 		a.So(err, ShouldEqual, io.ErrUnexpectedEOF)
 	}
 }

@@ -13,6 +13,7 @@ type Encoder interface {
 	Grow(n int)
 	Bytes() []byte
 	WriteTo(w io.Writer) (int64, error)
+	AddPort(channel uint8, value float32)
 	AddDigitalInput(channel, value uint8)
 	AddDigitalOutput(channel, value uint8)
 	AddAnalogInput(channel uint8, value float32)
@@ -51,6 +52,12 @@ func (e *encoder) Reset() {
 
 func (e *encoder) WriteTo(w io.Writer) (int64, error) {
 	return e.buf.WriteTo(w)
+}
+
+func (e *encoder) AddPort(channel uint8, value float32) {
+	val := uint16(value * 100)
+	e.buf.WriteByte(channel)
+	binary.Write(e.buf, binary.BigEndian, val)
 }
 
 func (e *encoder) AddDigitalInput(channel, value uint8) {

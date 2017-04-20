@@ -11,7 +11,7 @@ import (
 
 var ErrInvalidChannel = errors.New("cayennelpp: unknown type")
 
-type Target interface {
+type UplinkTarget interface {
 	DigitalInput(channel, value uint8)
 	DigitalOutput(channel, value uint8)
 	AnalogInput(channel uint8, value float32)
@@ -26,8 +26,13 @@ type Target interface {
 	GPS(channel uint8, latitude, longitude, altitude float32)
 }
 
+type DownlinkTarget interface {
+	Port(channel uint8, value float32)
+}
+
 type Decoder interface {
-	Decode(target Target) error
+	DecodeUplink(target UplinkTarget) error
+	DecodeDownlink(target DownlinkTarget) error
 }
 
 type decoder struct {
@@ -38,7 +43,7 @@ func NewDecoder(r io.Reader) Decoder {
 	return &decoder{r}
 }
 
-func (d *decoder) Decode(target Target) error {
+func (d *decoder) DecodeUplink(target UplinkTarget) error {
 	buf := make([]byte, 2)
 	for {
 		_, err := io.ReadFull(d.r, buf)
@@ -83,7 +88,26 @@ func (d *decoder) Decode(target Target) error {
 	return nil
 }
 
-func (d *decoder) decodeDigitalInput(channel uint8, target Target) error {
+func (d *decoder) DecodeDownlink(target DownlinkTarget) error {
+	buf := make([]byte, 1)
+	for {
+		_, err := io.ReadFull(d.r, buf)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+		var val int16
+		if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
+			return err
+		}
+		target.Port(buf[0], float32(val)/100)
+	}
+	return nil
+}
+
+func (d *decoder) decodeDigitalInput(channel uint8, target UplinkTarget) error {
 	var val uint8
 	if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
 		return err
@@ -92,7 +116,7 @@ func (d *decoder) decodeDigitalInput(channel uint8, target Target) error {
 	return nil
 }
 
-func (d *decoder) decodeDigitalOutput(channel uint8, target Target) error {
+func (d *decoder) decodeDigitalOutput(channel uint8, target UplinkTarget) error {
 	var val uint8
 	if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
 		return err
@@ -101,7 +125,7 @@ func (d *decoder) decodeDigitalOutput(channel uint8, target Target) error {
 	return nil
 }
 
-func (d *decoder) decodeAnalogInput(channel uint8, target Target) error {
+func (d *decoder) decodeAnalogInput(channel uint8, target UplinkTarget) error {
 	var val int16
 	if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
 		return err
@@ -110,7 +134,7 @@ func (d *decoder) decodeAnalogInput(channel uint8, target Target) error {
 	return nil
 }
 
-func (d *decoder) decodeAnalogOutput(channel uint8, target Target) error {
+func (d *decoder) decodeAnalogOutput(channel uint8, target UplinkTarget) error {
 	var val int16
 	if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
 		return err
@@ -119,7 +143,7 @@ func (d *decoder) decodeAnalogOutput(channel uint8, target Target) error {
 	return nil
 }
 
-func (d *decoder) decodeLuminosity(channel uint8, target Target) error {
+func (d *decoder) decodeLuminosity(channel uint8, target UplinkTarget) error {
 	var val uint16
 	if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
 		return err
@@ -128,7 +152,7 @@ func (d *decoder) decodeLuminosity(channel uint8, target Target) error {
 	return nil
 }
 
-func (d *decoder) decodePresence(channel uint8, target Target) error {
+func (d *decoder) decodePresence(channel uint8, target UplinkTarget) error {
 	var val uint8
 	if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
 		return err
@@ -137,7 +161,7 @@ func (d *decoder) decodePresence(channel uint8, target Target) error {
 	return nil
 }
 
-func (d *decoder) decodeTemperature(channel uint8, target Target) error {
+func (d *decoder) decodeTemperature(channel uint8, target UplinkTarget) error {
 	var val int16
 	if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
 		return err
@@ -146,7 +170,7 @@ func (d *decoder) decodeTemperature(channel uint8, target Target) error {
 	return nil
 }
 
-func (d *decoder) decodeRelativeHumidity(channel uint8, target Target) error {
+func (d *decoder) decodeRelativeHumidity(channel uint8, target UplinkTarget) error {
 	var val int8
 	if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
 		return err
@@ -155,7 +179,7 @@ func (d *decoder) decodeRelativeHumidity(channel uint8, target Target) error {
 	return nil
 }
 
-func (d *decoder) decodeAccelerometer(channel uint8, target Target) error {
+func (d *decoder) decodeAccelerometer(channel uint8, target UplinkTarget) error {
 	var valX, valY, valZ int16
 	if err := binary.Read(d.r, binary.BigEndian, &valX); err != nil {
 		return err
@@ -170,7 +194,7 @@ func (d *decoder) decodeAccelerometer(channel uint8, target Target) error {
 	return nil
 }
 
-func (d *decoder) decodeBarometricPressure(channel uint8, target Target) error {
+func (d *decoder) decodeBarometricPressure(channel uint8, target UplinkTarget) error {
 	var val int16
 	if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
 		return err
@@ -179,7 +203,7 @@ func (d *decoder) decodeBarometricPressure(channel uint8, target Target) error {
 	return nil
 }
 
-func (d *decoder) decodeGyrometer(channel uint8, target Target) error {
+func (d *decoder) decodeGyrometer(channel uint8, target UplinkTarget) error {
 	var valX, valY, valZ int16
 	if err := binary.Read(d.r, binary.BigEndian, &valX); err != nil {
 		return err
@@ -194,7 +218,7 @@ func (d *decoder) decodeGyrometer(channel uint8, target Target) error {
 	return nil
 }
 
-func (d *decoder) decodeGPS(channel uint8, target Target) error {
+func (d *decoder) decodeGPS(channel uint8, target UplinkTarget) error {
 	buf := make([]byte, 9)
 	if _, err := io.ReadFull(d.r, buf); err != nil {
 		return err
