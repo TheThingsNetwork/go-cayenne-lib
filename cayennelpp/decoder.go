@@ -26,8 +26,13 @@ type UplinkTarget interface {
 	GPS(channel uint8, latitude, longitude, altitude float32)
 }
 
+type DownlinkTarget interface {
+	Port(channel uint8, value float32)
+}
+
 type Decoder interface {
 	DecodeUplink(target UplinkTarget) error
+	DecodeDownlink(target DownlinkTarget) error
 }
 
 type decoder struct {
@@ -79,6 +84,25 @@ func (d *decoder) DecodeUplink(target UplinkTarget) error {
 		if err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func (d *decoder) DecodeDownlink(target DownlinkTarget) error {
+	buf := make([]byte, 1)
+	for {
+		_, err := io.ReadFull(d.r, buf)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+		var val int16
+		if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
+			return err
+		}
+		target.Port(buf[0], float32(val)/100)
 	}
 	return nil
 }
