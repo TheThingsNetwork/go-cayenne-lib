@@ -86,7 +86,7 @@ func TestDecode(t *testing.T) {
 		decoder := NewDecoder(bytes.NewBuffer(buf))
 		target := &target{make(map[uint8]interface{})}
 
-		err := decoder.Decode(target)
+		err := decoder.DecodeUplink(target)
 		a.So(err, ShouldBeNil)
 		a.So(target.values[1], ShouldEqual, 255)
 		a.So(target.values[2], ShouldEqual, 100)
@@ -110,7 +110,7 @@ func TestDecode(t *testing.T) {
 		decoder := NewDecoder(bytes.NewBuffer(buf))
 		target := &target{make(map[uint8]interface{})}
 
-		err := decoder.Decode(target)
+		err := decoder.DecodeUplink(target)
 		a.So(err, ShouldEqual, ErrInvalidChannel)
 	}
 
@@ -122,7 +122,7 @@ func TestDecode(t *testing.T) {
 		decoder := NewDecoder(bytes.NewBuffer(buf))
 		target := &target{make(map[uint8]interface{})}
 
-		err := decoder.Decode(target)
+		err := decoder.DecodeUplink(target)
 		a.So(err, ShouldEqual, io.ErrUnexpectedEOF)
 	}
 }
