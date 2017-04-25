@@ -111,6 +111,7 @@ func TestDecode(t *testing.T) {
 		buf := []byte{
 			1, 0, 100,
 			2, 234, 182,
+			255,
 		}
 		decoder := NewDecoder(bytes.NewBuffer(buf))
 		target := &target{make(map[uint8]interface{})}
