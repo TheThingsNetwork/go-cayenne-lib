@@ -98,6 +98,9 @@ func (d *decoder) DecodeDownlink(target DownlinkTarget) error {
 		if err != nil {
 			return err
 		}
+		if buf[0] == 0xFF {
+			break
+		}
 		var val int16
 		if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
 			return err
