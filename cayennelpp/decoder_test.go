@@ -81,7 +81,7 @@ func TestDecode(t *testing.T) {
 			5, Luminosity, 1, 244,
 			6, Presence, 50,
 			7, Temperature, 255, 100,
-			8, RelativeHumidity, 99,
+			8, RelativeHumidity, 160,
 			9, Accelerometer, 254, 88, 0, 15, 6, 130,
 			10, BarometricPressure, 41, 239,
 			11, Gyrometer, 1, 99, 2, 49, 254, 102,
@@ -99,7 +99,7 @@ func TestDecode(t *testing.T) {
 		a.So(target.values[5], ShouldEqual, 500)
 		a.So(target.values[6], ShouldEqual, 50)
 		a.So(target.values[7], ShouldEqual, -15.6)
-		a.So(target.values[8], ShouldEqual, 49.5)
+		a.So(target.values[8], ShouldEqual, 80)
 		a.So(target.values[9], ShouldResemble, []float32{-0.424, 0.015, 1.666})
 		a.So(target.values[10], ShouldEqual, 1073.5)
 		a.So(target.values[11], ShouldResemble, []float32{3.55, 5.61, -4.10})

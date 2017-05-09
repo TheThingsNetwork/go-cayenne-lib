@@ -174,7 +174,7 @@ func (d *decoder) decodeTemperature(channel uint8, target UplinkTarget) error {
 }
 
 func (d *decoder) decodeRelativeHumidity(channel uint8, target UplinkTarget) error {
-	var val int8
+	var val uint8
 	if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
 		return err
 	}
