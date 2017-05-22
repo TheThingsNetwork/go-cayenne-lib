@@ -226,10 +226,15 @@ func (d *decoder) decodeGPS(channel uint8, target UplinkTarget) error {
 	if _, err := io.ReadFull(d.r, buf); err != nil {
 		return err
 	}
-	var latitude, longitude, altitude int32
-	latitude = int32(buf[0])<<16 | int32(buf[1])<<8 | int32(buf[2])
-	longitude = int32(buf[3])<<16 | int32(buf[4])<<8 | int32(buf[5])
-	altitude = int32(buf[6])<<16 | int32(buf[7])<<8 | int32(buf[8])
-	target.GPS(channel, float32(latitude)/10000, float32(longitude)/10000, float32(altitude)/100)
+	latitude := make([]byte, 4)
+	copy(latitude, buf[0:3])
+	longitude := make([]byte, 4)
+	copy(longitude, buf[3:6])
+	altitude := make([]byte, 4)
+	copy(altitude, buf[6:9])
+	target.GPS(channel,
+		float32(int32(binary.BigEndian.Uint32(latitude))>>8)/10000,
+		float32(int32(binary.BigEndian.Uint32(longitude))>>8)/10000,
+		float32(int32(binary.BigEndian.Uint32(altitude))>>8)/100)
 	return nil
 }

@@ -157,4 +157,15 @@ func TestDecode(t *testing.T) {
 		err := decoder.DecodeDownlink(target)
 		a.So(err, ShouldEqual, io.ErrUnexpectedEOF)
 	}
+
+	// Negative coordinates
+	{
+		buf := []byte{0x01, GPS, 0x06, 0x76, 0x5f, 0xf2, 0x96, 0x0a, 0x00, 0x03, 0xe8}
+		decoder := NewDecoder(bytes.NewBuffer(buf))
+		target := &target{make(map[uint8]interface{})}
+
+		err := decoder.DecodeUplink(target)
+		a.So(err, ShouldBeNil)
+		a.So(target.values[1], ShouldResemble, []float32{42.3519, -87.9094, 10})
+	}
 }
