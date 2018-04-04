@@ -26,6 +26,10 @@ type Encoder interface {
 	AddBarometricPressure(channel uint8, hpa float32)
 	AddGyrometer(channel uint8, x, y, z float32)
 	AddGPS(channel uint8, latitude, longitude, meters float32)
+	AddVoltage(channel uint8, value float32)
+	AddCurrent(channel uint8, value float32)
+	AddFrequency(channel uint8, value float32)
+	AddEnergy(channel uint8, value float32)
 }
 
 type encoder struct {
@@ -155,4 +159,34 @@ func (e *encoder) AddGPS(channel uint8, latitude, longitude, meters float32) {
 	e.buf.WriteByte(uint8(valAlt >> 16))
 	e.buf.WriteByte(uint8(valAlt >> 8))
 	e.buf.WriteByte(uint8(valAlt))
+}
+
+func (e *encoder) AddVoltage(channel uint8, value float32) {
+	val := uint16(value * 100)
+	e.buf.WriteByte(channel)
+	e.buf.WriteByte(Voltage)
+	binary.Write(e.buf, binary.BigEndian, val)
+}
+
+func (e *encoder) AddCurrent(channel uint8, value float32) {
+	val := uint16(value * 100)
+	e.buf.WriteByte(channel)
+	e.buf.WriteByte(Current)
+	binary.Write(e.buf, binary.BigEndian, val)
+}
+
+func (e *encoder) AddFrequency(channel uint8, value float32) {
+	val := uint16(value * 100)
+	e.buf.WriteByte(channel)
+	e.buf.WriteByte(Frequency)
+	binary.Write(e.buf, binary.BigEndian, val)
+}
+
+func (e *encoder) AddEnergy(channel uint8, value float32) {
+	val := uint32(value * 100)
+	e.buf.WriteByte(channel)
+	e.buf.WriteByte(Energy)
+	e.buf.WriteByte(uint8(val >> 16))
+	e.buf.WriteByte(uint8(val >> 8))
+	e.buf.WriteByte(uint8(val))
 }

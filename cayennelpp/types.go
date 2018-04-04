@@ -28,4 +28,12 @@ const (
 	Gyrometer = 134
 	// GPS (3 byte lon/lat 0.0001 °, 3 bytes alt 0.01 meter)
 	GPS = 136
+	// Voltage (2 bytes, 0.01 signed)
+	Voltage = 116
+	// Current (2 bytes, 0.01 signed)
+	Current = 117
+	// Frequency (2 bytes, 0.01 signed)
+	Frequency = 118
+	// Energy (2 bytes, 0.01 signed)
+	Energy = 131
 )
