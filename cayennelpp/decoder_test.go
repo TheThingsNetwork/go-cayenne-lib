@@ -68,6 +68,22 @@ func (t *target) GPS(channel uint8, latitude, longitude, altitude float32) {
 	t.values[channel] = []float32{latitude, longitude, altitude}
 }
 
+func (t *target) Voltage(channel uint8, value float32) {
+	t.values[channel] = value
+}
+
+func (t *target) Current(channel uint8, value float32) {
+	t.values[channel] = value
+}
+
+func (t *target) Frequency(channel uint8, value float32) {
+	t.values[channel] = value
+}
+
+func (t *target) Energy(channel uint8, value float32) {
+	t.values[channel] = value
+}
+
 func TestDecode(t *testing.T) {
 	a := New(t)
 
@@ -86,6 +102,10 @@ func TestDecode(t *testing.T) {
 			10, BarometricPressure, 41, 239,
 			11, Gyrometer, 1, 99, 2, 49, 254, 102,
 			12, GPS, 7, 253, 135, 0, 190, 245, 0, 8, 106,
+			13, Voltage, 21, 74,
+			14, Current, 0, 240,
+			15, Frequency, 21, 124,
+			16, Energy, 2, 142, 164,
 		}
 		decoder := NewDecoder(bytes.NewBuffer(buf))
 		target := &target{make(map[uint8]interface{})}
@@ -104,6 +124,10 @@ func TestDecode(t *testing.T) {
 		a.So(target.values[10], ShouldEqual, 1073.5)
 		a.So(target.values[11], ShouldResemble, []float32{3.55, 5.61, -4.10})
 		a.So(target.values[12], ShouldResemble, []float32{52.3655, 4.8885, 21.54})
+		a.So(target.values[13], ShouldEqual, 54.5)
+		a.So(target.values[14], ShouldEqual, 2.4)
+		a.So(target.values[15], ShouldEqual, 55)
+		a.So(target.values[16], ShouldEqual, 1675.88)
 	}
 
 	// Happy flow: downlink

@@ -51,6 +51,21 @@ func TestEncode(t *testing.T) {
 
 		e.AddGPS(12, 52.3655, 4.8885, 21.54)
 		a.So(e.Bytes()[48:59], ShouldResemble, []byte{12, GPS, 7, 253, 135, 0, 190, 245, 0, 8, 106})
+
+		e.AddVoltage(13, 54.5)
+		a.So(e.Bytes()[59:63], ShouldResemble, []byte{13, Voltage, 21, 74})
+
+		e.AddCurrent(14, 2.4)
+		a.So(e.Bytes()[63:67], ShouldResemble, []byte{14, Current, 0, 240})
+
+		e.AddFrequency(15, 55)
+		a.So(e.Bytes()[67:71], ShouldResemble, []byte{15, Frequency, 21, 124})
+
+		e.AddEnergy(16, 789.1234)
+		a.So(e.Bytes()[71:76], ShouldResemble, []byte{16, Energy, 1, 52, 64})
+
+		e.AddEnergy(17, 1675.887)
+		a.So(e.Bytes()[76:81], ShouldResemble, []byte{17, Energy, 2, 142, 164})
 	}
 
 	// Downlink encoding

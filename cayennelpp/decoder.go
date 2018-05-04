@@ -24,6 +24,10 @@ type UplinkTarget interface {
 	BarometricPressure(channel uint8, hpa float32)
 	Gyrometer(channel uint8, x, y, z float32)
 	GPS(channel uint8, latitude, longitude, altitude float32)
+	Voltage(channel uint8, value float32)
+	Current(channel uint8, value float32)
+	Frequency(channel uint8, value float32)
+	Energy(channel uint8, value float32)
 }
 
 type DownlinkTarget interface {
@@ -78,6 +82,15 @@ func (d *decoder) DecodeUplink(target UplinkTarget) error {
 			err = d.decodeGyrometer(buf[0], target)
 		case GPS:
 			err = d.decodeGPS(buf[0], target)
+		case Voltage:
+			err = d.decodeVoltage(buf[0], target)
+		case Current:
+			err = d.decodeCurrent(buf[0], target)
+		case Frequency:
+			err = d.decodeFrequency(buf[0], target)
+		case Energy:
+			err = d.decodeEnergy(buf[0], target)
+
 		default:
 			err = ErrInvalidChannel
 		}
@@ -236,5 +249,43 @@ func (d *decoder) decodeGPS(channel uint8, target UplinkTarget) error {
 		float32(int32(binary.BigEndian.Uint32(latitude))>>8)/10000,
 		float32(int32(binary.BigEndian.Uint32(longitude))>>8)/10000,
 		float32(int32(binary.BigEndian.Uint32(altitude))>>8)/100)
+	return nil
+}
+
+func (d *decoder) decodeVoltage(channel uint8, target UplinkTarget) error {
+	var val int16
+	if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
+		return err
+	}
+	target.Voltage(channel, float32(val)/100)
+	return nil
+}
+
+func (d *decoder) decodeCurrent(channel uint8, target UplinkTarget) error {
+	var val int16
+	if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
+		return err
+	}
+	target.Current(channel, float32(val)/100)
+	return nil
+}
+
+func (d *decoder) decodeFrequency(channel uint8, target UplinkTarget) error {
+	var val int16
+	if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
+		return err
+	}
+	target.Frequency(channel, float32(val)/100)
+	return nil
+}
+
+func (d *decoder) decodeEnergy(channel uint8, target UplinkTarget) error {
+	buf := make([]byte, 3)
+	if _, err := io.ReadFull(d.r, buf); err != nil {
+		return err
+	}
+	energy := make([]byte, 4)
+	copy(energy, buf[0:3])
+	target.Energy(channel, float32(int32(binary.BigEndian.Uint32(energy))>>8)/100)
 	return nil
 }
