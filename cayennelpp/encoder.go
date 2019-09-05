@@ -12,6 +12,7 @@ import (
 type Encoder interface {
 	Grow(n int)
 	Bytes() []byte
+	Reset()
 	WriteTo(w io.Writer) (int64, error)
 	AddPort(channel uint8, value float32)
 	AddDigitalInput(channel, value uint8)
