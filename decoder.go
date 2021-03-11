@@ -1,4 +1,4 @@
-// Copyright © 2017 The Things Network
+// Copyright © 2021 The Things Network
 // Use of this source code is governed by the MIT license that can be found in the LICENSE file.
 
 package cayennelpp
@@ -9,8 +9,10 @@ import (
 	"io"
 )
 
-var ErrInvalidChannel = errors.New("cayennelpp: unknown type")
+// ErrInvalidChannelType indicates that the channel type is invalid.
+var ErrInvalidChannelType = errors.New("cayennelpp: unknown type")
 
+// UplinkTarget represents a target that processes decoded uplink values.
 type UplinkTarget interface {
 	DigitalInput(channel, value uint8)
 	DigitalOutput(channel, value uint8)
@@ -26,10 +28,12 @@ type UplinkTarget interface {
 	GPS(channel uint8, latitude, longitude, altitude float32)
 }
 
+// DownlinkTarget represents a target that processes decoded downlink values.
 type DownlinkTarget interface {
 	Port(channel uint8, value float32)
 }
 
+// Decoder decodes CayenneLPP encoded values.
 type Decoder interface {
 	DecodeUplink(target UplinkTarget) error
 	DecodeDownlink(target DownlinkTarget) error
@@ -39,6 +43,7 @@ type decoder struct {
 	r io.Reader
 }
 
+// NewDecoder instantiates a CayenneLPP decoder.
 func NewDecoder(r io.Reader) Decoder {
 	return &decoder{r}
 }
@@ -79,7 +84,7 @@ func (d *decoder) DecodeUplink(target UplinkTarget) error {
 		case GPS:
 			err = d.decodeGPS(buf[0], target)
 		default:
-			err = ErrInvalidChannel
+			err = ErrInvalidChannelType
 		}
 		if err != nil {
 			return err

@@ -1,4 +1,4 @@
-// Copyright © 2017 The Things Network
+// Copyright © 2021 The Things Network
 // Use of this source code is governed by the MIT license that can be found in the LICENSE file.
 
 package cayennelpp
@@ -131,7 +131,7 @@ func TestDecode(t *testing.T) {
 		target := &target{make(map[uint8]interface{})}
 
 		err := decoder.DecodeUplink(target)
-		a.So(err, ShouldEqual, ErrInvalidChannel)
+		a.So(err, ShouldEqual, ErrInvalidChannelType)
 	}
 
 	// Not enough data: uplink
