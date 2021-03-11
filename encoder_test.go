@@ -47,10 +47,10 @@ func TestEncode(t *testing.T) {
 		a.So(e.Bytes()[36:40], ShouldResemble, []byte{10, BarometricPressure, 41, 239})
 
 		e.AddGyrometer(11, 3.55, 5.61, -4.10)
-		a.So(e.Bytes()[40:48], ShouldResemble, []byte{11, Gyrometer, 1, 99, 2, 49, 254, 102})
+		a.So(e.Bytes()[40:48], ShouldResemble, []byte{11, Gyrometer, 1, 99, 2, 49, 254, 103})
 
 		e.AddGPS(12, 52.3655, 4.8885, 21.54)
-		a.So(e.Bytes()[48:59], ShouldResemble, []byte{12, GPS, 7, 253, 135, 0, 190, 245, 0, 8, 106})
+		a.So(e.Bytes()[48:59], ShouldResemble, []byte{12, GPS, 7, 253, 135, 0, 190, 244, 0, 8, 106})
 	}
 
 	// Downlink encoding

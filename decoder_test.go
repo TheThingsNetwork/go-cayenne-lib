@@ -16,7 +16,7 @@ type target struct {
 	values map[uint8]interface{}
 }
 
-func (t *target) Port(channel uint8, value float32) {
+func (t *target) Port(channel uint8, value float64) {
 	t.values[channel] = value
 }
 
@@ -28,11 +28,11 @@ func (t *target) DigitalOutput(channel, value uint8) {
 	t.values[channel] = value
 }
 
-func (t *target) AnalogInput(channel uint8, value float32) {
+func (t *target) AnalogInput(channel uint8, value float64) {
 	t.values[channel] = value
 }
 
-func (t *target) AnalogOutput(channel uint8, value float32) {
+func (t *target) AnalogOutput(channel uint8, value float64) {
 	t.values[channel] = value
 }
 
@@ -44,28 +44,28 @@ func (t *target) Presence(channel, value uint8) {
 	t.values[channel] = value
 }
 
-func (t *target) Temperature(channel uint8, celcius float32) {
+func (t *target) Temperature(channel uint8, celcius float64) {
 	t.values[channel] = celcius
 }
 
-func (t *target) RelativeHumidity(channel uint8, rh float32) {
+func (t *target) RelativeHumidity(channel uint8, rh float64) {
 	t.values[channel] = rh
 }
 
-func (t *target) Accelerometer(channel uint8, x, y, z float32) {
-	t.values[channel] = []float32{x, y, z}
+func (t *target) Accelerometer(channel uint8, x, y, z float64) {
+	t.values[channel] = []float64{x, y, z}
 }
 
-func (t *target) BarometricPressure(channel uint8, hpa float32) {
+func (t *target) BarometricPressure(channel uint8, hpa float64) {
 	t.values[channel] = hpa
 }
 
-func (t *target) Gyrometer(channel uint8, x, y, z float32) {
-	t.values[channel] = []float32{x, y, z}
+func (t *target) Gyrometer(channel uint8, x, y, z float64) {
+	t.values[channel] = []float64{x, y, z}
 }
 
-func (t *target) GPS(channel uint8, latitude, longitude, altitude float32) {
-	t.values[channel] = []float32{latitude, longitude, altitude}
+func (t *target) GPS(channel uint8, latitude, longitude, altitude float64) {
+	t.values[channel] = []float64{latitude, longitude, altitude}
 }
 
 func TestDecode(t *testing.T) {
@@ -100,10 +100,10 @@ func TestDecode(t *testing.T) {
 		a.So(target.values[6], ShouldEqual, 50)
 		a.So(target.values[7], ShouldEqual, -15.6)
 		a.So(target.values[8], ShouldEqual, 80)
-		a.So(target.values[9], ShouldResemble, []float32{-0.424, 0.015, 1.666})
+		a.So(target.values[9], ShouldResemble, []float64{-0.424, 0.015, 1.666})
 		a.So(target.values[10], ShouldEqual, 1073.5)
-		a.So(target.values[11], ShouldResemble, []float32{3.55, 5.61, -4.10})
-		a.So(target.values[12], ShouldResemble, []float32{52.3655, 4.8885, 21.54})
+		a.So(target.values[11], ShouldResemble, []float64{3.55, 5.61, -4.10})
+		a.So(target.values[12], ShouldResemble, []float64{52.3655, 4.8885, 21.54})
 	}
 
 	// Happy flow: downlink
@@ -166,6 +166,6 @@ func TestDecode(t *testing.T) {
 
 		err := decoder.DecodeUplink(target)
 		a.So(err, ShouldBeNil)
-		a.So(target.values[1], ShouldResemble, []float32{42.3519, -87.9094, 10})
+		a.So(target.values[1], ShouldResemble, []float64{42.3519, -87.9094, 10})
 	}
 }

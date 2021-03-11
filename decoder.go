@@ -16,21 +16,21 @@ var ErrInvalidChannelType = errors.New("cayennelpp: unknown type")
 type UplinkTarget interface {
 	DigitalInput(channel, value uint8)
 	DigitalOutput(channel, value uint8)
-	AnalogInput(channel uint8, value float32)
-	AnalogOutput(channel uint8, value float32)
+	AnalogInput(channel uint8, value float64)
+	AnalogOutput(channel uint8, value float64)
 	Luminosity(channel uint8, value uint16)
 	Presence(channel, value uint8)
-	Temperature(channel uint8, celcius float32)
-	RelativeHumidity(channel uint8, rh float32)
-	Accelerometer(channel uint8, x, y, z float32)
-	BarometricPressure(channel uint8, hpa float32)
-	Gyrometer(channel uint8, x, y, z float32)
-	GPS(channel uint8, latitude, longitude, altitude float32)
+	Temperature(channel uint8, celcius float64)
+	RelativeHumidity(channel uint8, rh float64)
+	Accelerometer(channel uint8, x, y, z float64)
+	BarometricPressure(channel uint8, hpa float64)
+	Gyrometer(channel uint8, x, y, z float64)
+	GPS(channel uint8, latitude, longitude, altitude float64)
 }
 
 // DownlinkTarget represents a target that processes decoded downlink values.
 type DownlinkTarget interface {
-	Port(channel uint8, value float32)
+	Port(channel uint8, value float64)
 }
 
 // Decoder decodes CayenneLPP encoded values.
@@ -110,7 +110,7 @@ func (d *decoder) DecodeDownlink(target DownlinkTarget) error {
 		if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
 			return err
 		}
-		target.Port(buf[0], float32(val)/100)
+		target.Port(buf[0], float64(val)/100)
 	}
 	return nil
 }
@@ -138,7 +138,7 @@ func (d *decoder) decodeAnalogInput(channel uint8, target UplinkTarget) error {
 	if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
 		return err
 	}
-	target.AnalogInput(channel, float32(val)/100)
+	target.AnalogInput(channel, float64(val)/100)
 	return nil
 }
 
@@ -147,7 +147,7 @@ func (d *decoder) decodeAnalogOutput(channel uint8, target UplinkTarget) error {
 	if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
 		return err
 	}
-	target.AnalogOutput(channel, float32(val)/100)
+	target.AnalogOutput(channel, float64(val)/100)
 	return nil
 }
 
@@ -174,7 +174,7 @@ func (d *decoder) decodeTemperature(channel uint8, target UplinkTarget) error {
 	if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
 		return err
 	}
-	target.Temperature(channel, float32(val)/10)
+	target.Temperature(channel, float64(val)/10)
 	return nil
 }
 
@@ -183,7 +183,7 @@ func (d *decoder) decodeRelativeHumidity(channel uint8, target UplinkTarget) err
 	if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
 		return err
 	}
-	target.RelativeHumidity(channel, float32(val)/2)
+	target.RelativeHumidity(channel, float64(val)/2)
 	return nil
 }
 
@@ -198,7 +198,7 @@ func (d *decoder) decodeAccelerometer(channel uint8, target UplinkTarget) error 
 	if err := binary.Read(d.r, binary.BigEndian, &valZ); err != nil {
 		return err
 	}
-	target.Accelerometer(channel, float32(valX)/1000, float32(valY)/1000, float32(valZ)/1000)
+	target.Accelerometer(channel, float64(valX)/1000, float64(valY)/1000, float64(valZ)/1000)
 	return nil
 }
 
@@ -207,7 +207,7 @@ func (d *decoder) decodeBarometricPressure(channel uint8, target UplinkTarget) e
 	if err := binary.Read(d.r, binary.BigEndian, &val); err != nil {
 		return err
 	}
-	target.BarometricPressure(channel, float32(val)/10)
+	target.BarometricPressure(channel, float64(val)/10)
 	return nil
 }
 
@@ -222,7 +222,7 @@ func (d *decoder) decodeGyrometer(channel uint8, target UplinkTarget) error {
 	if err := binary.Read(d.r, binary.BigEndian, &valZ); err != nil {
 		return err
 	}
-	target.Gyrometer(channel, float32(valX)/100, float32(valY)/100, float32(valZ)/100)
+	target.Gyrometer(channel, float64(valX)/100, float64(valY)/100, float64(valZ)/100)
 	return nil
 }
 
@@ -238,8 +238,9 @@ func (d *decoder) decodeGPS(channel uint8, target UplinkTarget) error {
 	altitude := make([]byte, 4)
 	copy(altitude, buf[6:9])
 	target.GPS(channel,
-		float32(int32(binary.BigEndian.Uint32(latitude))>>8)/10000,
-		float32(int32(binary.BigEndian.Uint32(longitude))>>8)/10000,
-		float32(int32(binary.BigEndian.Uint32(altitude))>>8)/100)
+		float64(int32(binary.BigEndian.Uint32(latitude))>>8)/10000,
+		float64(int32(binary.BigEndian.Uint32(longitude))>>8)/10000,
+		float64(int32(binary.BigEndian.Uint32(altitude))>>8)/100,
+	)
 	return nil
 }

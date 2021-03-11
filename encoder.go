@@ -15,19 +15,19 @@ type Encoder interface {
 	Bytes() []byte
 	Reset()
 	WriteTo(w io.Writer) (int64, error)
-	AddPort(channel uint8, value float32)
+	AddPort(channel uint8, value float64)
 	AddDigitalInput(channel, value uint8)
 	AddDigitalOutput(channel, value uint8)
-	AddAnalogInput(channel uint8, value float32)
-	AddAnalogOutput(channel uint8, value float32)
+	AddAnalogInput(channel uint8, value float64)
+	AddAnalogOutput(channel uint8, value float64)
 	AddLuminosity(channel uint8, value uint16)
 	AddPresence(channel, value uint8)
-	AddTemperature(channel uint8, celcius float32)
-	AddRelativeHumidity(channel uint8, rh float32)
-	AddAccelerometer(channel uint8, x, y, z float32)
-	AddBarometricPressure(channel uint8, hpa float32)
-	AddGyrometer(channel uint8, x, y, z float32)
-	AddGPS(channel uint8, latitude, longitude, meters float32)
+	AddTemperature(channel uint8, celcius float64)
+	AddRelativeHumidity(channel uint8, rh float64)
+	AddAccelerometer(channel uint8, x, y, z float64)
+	AddBarometricPressure(channel uint8, hpa float64)
+	AddGyrometer(channel uint8, x, y, z float64)
+	AddGPS(channel uint8, latitude, longitude, meters float64)
 }
 
 type encoder struct {
@@ -57,7 +57,7 @@ func (e *encoder) WriteTo(w io.Writer) (int64, error) {
 	return e.buf.WriteTo(w)
 }
 
-func (e *encoder) AddPort(channel uint8, value float32) {
+func (e *encoder) AddPort(channel uint8, value float64) {
 	val := uint16(value * 100)
 	e.buf.WriteByte(channel)
 	binary.Write(e.buf, binary.BigEndian, val)
@@ -75,14 +75,14 @@ func (e *encoder) AddDigitalOutput(channel, value uint8) {
 	e.buf.WriteByte(value)
 }
 
-func (e *encoder) AddAnalogInput(channel uint8, value float32) {
+func (e *encoder) AddAnalogInput(channel uint8, value float64) {
 	val := uint16(value * 100)
 	e.buf.WriteByte(channel)
 	e.buf.WriteByte(AnalogInput)
 	binary.Write(e.buf, binary.BigEndian, val)
 }
 
-func (e *encoder) AddAnalogOutput(channel uint8, value float32) {
+func (e *encoder) AddAnalogOutput(channel uint8, value float64) {
 	val := uint16(value * 100)
 	e.buf.WriteByte(channel)
 	e.buf.WriteByte(AnalogOutput)
@@ -101,20 +101,20 @@ func (e *encoder) AddPresence(channel, value uint8) {
 	e.buf.WriteByte(value)
 }
 
-func (e *encoder) AddTemperature(channel uint8, celcius float32) {
+func (e *encoder) AddTemperature(channel uint8, celcius float64) {
 	val := uint16(celcius * 10)
 	e.buf.WriteByte(channel)
 	e.buf.WriteByte(Temperature)
 	binary.Write(e.buf, binary.BigEndian, val)
 }
 
-func (e *encoder) AddRelativeHumidity(channel uint8, rh float32) {
+func (e *encoder) AddRelativeHumidity(channel uint8, rh float64) {
 	e.buf.WriteByte(channel)
 	e.buf.WriteByte(RelativeHumidity)
 	e.buf.WriteByte(uint8(rh * 2))
 }
 
-func (e *encoder) AddAccelerometer(channel uint8, x, y, z float32) {
+func (e *encoder) AddAccelerometer(channel uint8, x, y, z float64) {
 	valX := uint16(x * 1000)
 	valY := uint16(y * 1000)
 	valZ := uint16(z * 1000)
@@ -125,14 +125,14 @@ func (e *encoder) AddAccelerometer(channel uint8, x, y, z float32) {
 	binary.Write(e.buf, binary.BigEndian, valZ)
 }
 
-func (e *encoder) AddBarometricPressure(channel uint8, hpa float32) {
+func (e *encoder) AddBarometricPressure(channel uint8, hpa float64) {
 	val := uint16(hpa * 10)
 	e.buf.WriteByte(channel)
 	e.buf.WriteByte(BarometricPressure)
 	binary.Write(e.buf, binary.BigEndian, val)
 }
 
-func (e *encoder) AddGyrometer(channel uint8, x, y, z float32) {
+func (e *encoder) AddGyrometer(channel uint8, x, y, z float64) {
 	valX := uint16(x * 100)
 	valY := uint16(y * 100)
 	valZ := uint16(z * 100)
@@ -143,7 +143,7 @@ func (e *encoder) AddGyrometer(channel uint8, x, y, z float32) {
 	binary.Write(e.buf, binary.BigEndian, valZ)
 }
 
-func (e *encoder) AddGPS(channel uint8, latitude, longitude, meters float32) {
+func (e *encoder) AddGPS(channel uint8, latitude, longitude, meters float64) {
 	valLat := uint32(latitude * 10000)
 	valLon := uint32(longitude * 10000)
 	valAlt := uint32(meters * 100)
