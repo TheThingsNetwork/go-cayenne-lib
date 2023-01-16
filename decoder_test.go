@@ -86,6 +86,7 @@ func TestDecode(t *testing.T) {
 			10, BarometricPressure, 41, 239,
 			11, Gyrometer, 1, 99, 2, 49, 254, 102,
 			12, GPS, 7, 253, 135, 0, 190, 245, 0, 8, 106,
+			13, GPS, 7, 253, 135, 255, 65, 12, 0, 8, 106,
 		}
 		decoder := NewDecoder(bytes.NewBuffer(buf))
 		target := &target{make(map[uint8]interface{})}
@@ -104,6 +105,7 @@ func TestDecode(t *testing.T) {
 		a.So(target.values[10], ShouldEqual, 1073.5)
 		a.So(target.values[11], ShouldResemble, []float64{3.55, 5.61, -4.10})
 		a.So(target.values[12], ShouldResemble, []float64{52.3655, 4.8885, 21.54})
+		a.So(target.values[13], ShouldResemble, []float64{52.3655, -4.8884, 21.54})
 	}
 
 	// Happy flow: downlink

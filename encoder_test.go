@@ -51,6 +51,9 @@ func TestEncode(t *testing.T) {
 
 		e.AddGPS(12, 52.3655, 4.8885, 21.54)
 		a.So(e.Bytes()[48:59], ShouldResemble, []byte{12, GPS, 7, 253, 135, 0, 190, 244, 0, 8, 106})
+
+		e.AddGPS(13, 43.43382, -5.865784, 179.0000)
+		a.So(e.Bytes()[59:70], ShouldResemble, []byte{13, GPS, 0x06, 160, 162, 255, 26, 223, 0, 69, 236})
 	}
 
 	// Downlink encoding
