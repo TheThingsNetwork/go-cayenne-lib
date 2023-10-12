@@ -58,7 +58,7 @@ func (e *encoder) WriteTo(w io.Writer) (int64, error) {
 }
 
 func (e *encoder) AddPort(channel uint8, value float64) {
-	val := uint16(value * 100)
+	val := int16(value * 100)
 	e.buf.WriteByte(channel)
 	binary.Write(e.buf, binary.BigEndian, val)
 }
@@ -76,14 +76,14 @@ func (e *encoder) AddDigitalOutput(channel, value uint8) {
 }
 
 func (e *encoder) AddAnalogInput(channel uint8, value float64) {
-	val := uint16(value * 100)
+	val := int16(value * 100)
 	e.buf.WriteByte(channel)
 	e.buf.WriteByte(AnalogInput)
 	binary.Write(e.buf, binary.BigEndian, val)
 }
 
 func (e *encoder) AddAnalogOutput(channel uint8, value float64) {
-	val := uint16(value * 100)
+	val := int16(value * 100)
 	e.buf.WriteByte(channel)
 	e.buf.WriteByte(AnalogOutput)
 	binary.Write(e.buf, binary.BigEndian, val)
@@ -102,7 +102,7 @@ func (e *encoder) AddPresence(channel, value uint8) {
 }
 
 func (e *encoder) AddTemperature(channel uint8, celcius float64) {
-	val := uint16(celcius * 10)
+	val := int16(celcius * 10)
 	e.buf.WriteByte(channel)
 	e.buf.WriteByte(Temperature)
 	binary.Write(e.buf, binary.BigEndian, val)
@@ -115,9 +115,9 @@ func (e *encoder) AddRelativeHumidity(channel uint8, rh float64) {
 }
 
 func (e *encoder) AddAccelerometer(channel uint8, x, y, z float64) {
-	valX := uint16(x * 1000)
-	valY := uint16(y * 1000)
-	valZ := uint16(z * 1000)
+	valX := int16(x * 1000)
+	valY := int16(y * 1000)
+	valZ := int16(z * 1000)
 	e.buf.WriteByte(channel)
 	e.buf.WriteByte(Accelerometer)
 	binary.Write(e.buf, binary.BigEndian, valX)
@@ -126,16 +126,16 @@ func (e *encoder) AddAccelerometer(channel uint8, x, y, z float64) {
 }
 
 func (e *encoder) AddBarometricPressure(channel uint8, hpa float64) {
-	val := uint16(hpa * 10)
+	val := int16(hpa * 10)
 	e.buf.WriteByte(channel)
 	e.buf.WriteByte(BarometricPressure)
 	binary.Write(e.buf, binary.BigEndian, val)
 }
 
 func (e *encoder) AddGyrometer(channel uint8, x, y, z float64) {
-	valX := uint16(x * 100)
-	valY := uint16(y * 100)
-	valZ := uint16(z * 100)
+	valX := int16(x * 100)
+	valY := int16(y * 100)
+	valZ := int16(z * 100)
 	e.buf.WriteByte(channel)
 	e.buf.WriteByte(Gyrometer)
 	binary.Write(e.buf, binary.BigEndian, valX)
@@ -144,18 +144,18 @@ func (e *encoder) AddGyrometer(channel uint8, x, y, z float64) {
 }
 
 func (e *encoder) AddGPS(channel uint8, latitude, longitude, meters float64) {
-	valLat := uint32(latitude * 10000)
-	valLon := uint32(longitude * 10000)
-	valAlt := uint32(meters * 100)
+	valLat := int32(latitude * 10000)
+	valLon := int32(longitude * 10000)
+	valAlt := int32(meters * 100)
 	e.buf.WriteByte(channel)
 	e.buf.WriteByte(GPS)
-	e.buf.WriteByte(uint8(valLat >> 16))
-	e.buf.WriteByte(uint8(valLat >> 8))
-	e.buf.WriteByte(uint8(valLat))
-	e.buf.WriteByte(uint8(valLon >> 16))
-	e.buf.WriteByte(uint8(valLon >> 8))
-	e.buf.WriteByte(uint8(valLon))
-	e.buf.WriteByte(uint8(valAlt >> 16))
-	e.buf.WriteByte(uint8(valAlt >> 8))
-	e.buf.WriteByte(uint8(valAlt))
+	e.buf.WriteByte(byte(valLat >> 16))
+	e.buf.WriteByte(byte(valLat >> 8))
+	e.buf.WriteByte(byte(valLat))
+	e.buf.WriteByte(byte(valLon >> 16))
+	e.buf.WriteByte(byte(valLon >> 8))
+	e.buf.WriteByte(byte(valLon))
+	e.buf.WriteByte(byte(valAlt >> 16))
+	e.buf.WriteByte(byte(valAlt >> 8))
+	e.buf.WriteByte(byte(valAlt))
 }
